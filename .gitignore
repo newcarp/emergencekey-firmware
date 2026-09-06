@@ -1,0 +1,19 @@
+# Arduino / esp32 build output
+build/
+*.elf
+*.bin
+*.hex
+*.map
+*.ino.cpp
+
+# PlatformIO (if someone opens the sketch there)
+.pio/
+.vscode/
+
+PROGRESS.md
+
+# Editor / OS junk
+.idea/
+*.swp
+*~
+.DS_Store
