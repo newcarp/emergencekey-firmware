@@ -1,4 +1,4 @@
-# EmergenceKey — ESP32-S3 BLE → USB HID Bridge
+# EmergenceKey: Use a ESP32-S3 BLE as USB HID Bridge
 
 A **phone or laptop becomes a wireless keyboard and mouse**. 
 
@@ -21,6 +21,8 @@ Use it from: [newcarp/emergencekey](https://github.com/newcarp/emergencekey).
 
 ---
 
+
+
 ## Identity (must match the [EmergenceKey webpage](https://github.com/newcarp/emergencekey))
 
 
@@ -38,6 +40,8 @@ same time.
 
 ---
 
+
+
 ## Builds
 
 
@@ -50,6 +54,8 @@ same time.
 Both require **USB Mode = USB-OTG (TinyUSB)** and **USB CDC On Boot = Disabled**.
 
 ---
+
+
 
 ## Wire protocol
 
@@ -75,6 +81,8 @@ The main build also accepts the upstream v2 `[0xAA, 0x01]` TLV frames.
 
 ---
 
+
+
 ## BIOS / pre-boot notes
 
 Picky firmware USB stacks (some laptop BIOS setup screens) reject this chip
@@ -96,6 +104,8 @@ two-interface device.
 
 ---
 
+
+
 ## LED
 
 On the Waveshare ESP32-S3-Zero WS2812 (GPIO 21 / `RGB_BUILTIN`):
@@ -109,6 +119,8 @@ On the Waveshare ESP32-S3-Zero WS2812 (GPIO 21 / `RGB_BUILTIN`):
 
 
 ---
+
+
 
 ## Attribution
 
