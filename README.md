@@ -21,27 +21,6 @@ Use it from: [newcarp/emergencekey](https://github.com/newcarp/emergencekey).
 
 ---
 
-
-
-## Identity (must match the [EmergenceKey webpage](https://github.com/newcarp/emergencekey))
-
-
-| Field                     | Value                                  |
-| ------------------------- | -------------------------------------- |
-| Advertised name           | `EmergenceKey` (12 chars)              |
-| Service UUID              | `2d2a0001-8a5a-4e76-a2e3-1e57d9a1b001` |
-| Write characteristic UUID | `2d2a0002-8a5a-4e76-a2e3-1e57d9a1b001` |
-
-
-These are the same strings KoStard published. The name is set in **two**
-places in each sketch — `NimBLEDevice::init()` and `adv->setName()`. Both
-must say `EmergenceKey`. If you change the UUIDs, change the webpage at the
-same time.
-
----
-
-
-
 ## Builds
 
 
@@ -78,6 +57,22 @@ Space `0x2C`, Enter `0x28`, Backspace `0x2A`, Esc `0x29`, Tab `0x2B`,
 F1–F12 `0x3A`–`0x45`, arrows `0x4F`–`0x52`.
 
 The main build also accepts the upstream v2 `[0xAA, 0x01]` TLV frames.
+
+---
+
+
+
+## Identity (must match the [EmergenceKey webpage](https://github.com/newcarp/emergencekey))
+
+
+| Field                     | Value                                  |
+| ------------------------- | -------------------------------------- |
+| Advertised name           | `EmergenceKey` (12 chars)              |
+| Service UUID              | `2d2a0001-8a5a-4e76-a2e3-1e57d9a1b001` |
+| Write characteristic UUID | `2d2a0002-8a5a-4e76-a2e3-1e57d9a1b001` |
+
+
+These are the same strings KoStard published. The name is set in **two** places in each sketch — `NimBLEDevice::init()` and `adv->setName()`. Both must say `EmergenceKey`. If you change the UUIDs, change the webpage at the same time.
 
 ---
 
