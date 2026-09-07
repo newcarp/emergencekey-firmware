@@ -15,6 +15,7 @@
  *   - Device class forced to 0/0/0 — required for some BIOS hosts
  *   - CDC off; no Serial; no HID-stall restart
  *   - USB before BLE; SET_PROTOCOL hook is observe-only (no key remap)
+ *   - BLE LESC Just Works (bond + SC, no MITM); write char is WRITE_ENC
  *
  * Build (Arduino IDE 2):
  *   Board: Waveshare ESP32-S3-Zero
@@ -319,15 +320,19 @@ void setup() {
   // ---------- THEN BLE ----------
   NimBLEDevice::init(kDeviceName);
   NimBLEDevice::setPower(ESP_PWR_LVL_P9);
+  // Just Works: no PIN. Bond so reconnects stay silent. SC = LESC.
+  NimBLEDevice::setSecurityIOCap(BLE_HS_IO_NO_INPUT_OUTPUT);
+  NimBLEDevice::setSecurityAuth(true, false, true);
 
   pServer = NimBLEDevice::createServer();
   pServer->setCallbacks(new ServerCallbacks());
 
   NimBLEService* svc = pServer->createService(kServiceUUID);
 
+  // WRITE_ENC is what actually starts pairing. Keep WRITE / WRITE_NR.
   pWriteChar = svc->createCharacteristic(
     kWriteCharUUID,
-    NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_NR);
+    NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_NR | NIMBLE_PROPERTY::WRITE_ENC);
   pWriteChar->setCallbacks(new WriteCallbacks());
   // NimBLEService::start() is a no-op in this NimBLE-Arduino version
   // (services start automatically when the server starts) — call omitted

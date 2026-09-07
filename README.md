@@ -12,8 +12,16 @@ Note - due to limitations of the ESP32-S3 in some bios mouse input doesn't work,
 Fork of [KoStard/ESPRemoteControl](https://github.com/KoStard/ESPRemoteControl)
 (MIT). See [Attribution](#attribution).
 
-**BLE is open (no pairing).** Treat this as an emergency / same-room tool, not
-a general-purpose wireless keyboard.
+**BLE uses LESC Just Works** (encrypted link, no PIN). First time: native
+OS/browser Pair dialog, one tap — then the webpage Connect. Later reconnects
+are silent (Connect on the page only; no Pair again).
+
+On Linux, Chrome often never shows that dialog. Pair **EmergenceKey** in the
+laptop Bluetooth settings first, then open the page and Connect. Same bond;
+same silent reconnects after that.
+
+Treat this as an emergency / same-room tool, not a general-purpose wireless
+keyboard.
 
 [Flashing instructions](BUILD_NOTES.md).  
 

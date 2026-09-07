@@ -81,7 +81,11 @@ mouse first.
   - Main: keyboard **and** mouse HID interfaces, no CDC.
   - Boot-strict: one keyboard interface, `InterfaceClass 3 / SubClass 1 / Protocol 1`.
 - The EmergenceKey webpage (`2d2a0001-…` / `2d2a0002-…`) connects over Web
-Bluetooth and types at the console.
+Bluetooth and types at the console. First time: native Pair dialog (iPhone
+and similar), then Connect. On Linux, pair **EmergenceKey** in the OS
+Bluetooth settings if no dialog appears, then Connect on the page.
+Reconnects: Connect only, no Pair again. A stall or error only at that
+first Pair moment is expected.
 - LED: idle = yellow breathe · BLE connected = solid green · drop = red blink, then breathe.
 
 
