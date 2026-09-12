@@ -37,6 +37,7 @@
 #include "USBHID.h"
 #include "USBHIDKeyboard.h"
 #include "USBHIDMouse.h"
+#include "USBHIDConsumerControl.h"
 
 // Catch the wrong board-menu selection at compile time.
 #if defined(ARDUINO_USB_CDC_ON_BOOT) && ARDUINO_USB_CDC_ON_BOOT
@@ -106,6 +107,7 @@ static const uint8_t CMD_KEY          = 0x01;
 static const uint8_t CMD_MOUSE_MOVE   = 0x02;
 static const uint8_t CMD_MOUSE_CLICK  = 0x03;
 static const uint8_t CMD_MOUSE_SCROLL = 0x04;
+static const uint8_t CMD_MEDIA        = 0x05;  // [action, 0x00] — OS-only consumer tap
 
 // Queued v2 extras (not on the wire — local dispatch tags)
 static const uint8_t Q_SET_MODIFIERS  = 0x81;
@@ -125,6 +127,7 @@ static const uint8_t V2_VERSION = 0x01;
 // =====================
 USBHIDKeyboard Keyboard;
 USBHIDMouse     Mouse;
+USBHIDConsumerControl Consumer;
 
 // Observes SET_PROTOCOL / SET_IDLE. Not begun() — shares Keyboard's HID
 // singleton and adds no extra USB interface.
@@ -196,12 +199,37 @@ static void sendMouseMove(int8_t dx, int8_t dy) { Mouse.move(dx, dy); }
 static void sendMouseClick(uint8_t button)       { Mouse.click(button); }
 static void sendMouseScroll(int8_t dx, int8_t dy){ Mouse.move(0, 0, dy, dx); }
 
+// v1 0x05 action byte -> HID Consumer Control usage. Unknown action = no-op.
+static uint16_t mediaUsage(uint8_t action) {
+  switch (action) {
+    case 0x01: return CONSUMER_CONTROL_PLAY_PAUSE;
+    case 0x02: return CONSUMER_CONTROL_SCAN_NEXT;
+    case 0x03: return CONSUMER_CONTROL_SCAN_PREVIOUS;
+    case 0x04: return CONSUMER_CONTROL_STOP;
+    case 0x05: return CONSUMER_CONTROL_VOLUME_INCREMENT;
+    case 0x06: return CONSUMER_CONTROL_VOLUME_DECREMENT;
+    case 0x07: return CONSUMER_CONTROL_MUTE;
+    case 0x08: return CONSUMER_CONTROL_FAST_FORWARD;
+    case 0x09: return CONSUMER_CONTROL_REWIND;
+    default:   return 0;
+  }
+}
+
+static void mediaTap(uint8_t action) {
+  uint16_t usage = mediaUsage(action);
+  if (!usage) return;
+  Consumer.press(usage);
+  delay(5);
+  Consumer.release();
+}
+
 static void dispatchCmd(uint8_t type, uint8_t a, uint8_t b) {
   switch (type) {
     case CMD_KEY:          keyTap(a, b);                         break;
     case CMD_MOUSE_MOVE:   sendMouseMove((int8_t)a, (int8_t)b);  break;
     case CMD_MOUSE_CLICK:  sendMouseClick(a);                    break;
     case CMD_MOUSE_SCROLL: sendMouseScroll((int8_t)a, (int8_t)b); break;
+    case CMD_MEDIA:        mediaTap(a);                          break;
     case Q_SET_MODIFIERS:  setModifiers(a);                      break;
     case Q_KEY_DOWN:       keyDown(a);                           break;
     case Q_KEY_UP:         keyUp(a);                             break;
@@ -279,6 +307,7 @@ class WriteCallbacks : public NimBLECharacteristicCallbacks {
           case 0x12: if (len == 1) enqueueCmd(CMD_MOUSE_CLICK, payload[0], 0); break;
           case 0x13: if (len == 1) enqueueCmd(Q_MOUSE_PRESS, payload[0], 0); break;
           case 0x14: if (len == 1) enqueueCmd(Q_MOUSE_RELEASE, payload[0], 0); break;
+          case 0x20: if (len == 1) enqueueCmd(CMD_MEDIA, payload[0], 0); break;
           default: break;
         }
         idx += len;
@@ -378,6 +407,7 @@ void setup() {
 
   Keyboard.begin();
   Mouse.begin();
+  Consumer.begin();
   USB.begin();
 
   // ---------- THEN BLE ----------

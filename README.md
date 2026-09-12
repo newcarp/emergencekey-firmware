@@ -1,6 +1,6 @@
 # EmergenceKey: Use a ESP32-S3 BLE as USB HID Bridge
 
-A **phone or laptop becomes a wireless keyboard and mouse**. 
+A **phone or laptop becomes a wireless keyboard, mouse, and media remote**. 
 
 This is half of the project, this repo is the USB dongle. The phone/laptop UI is [newcarp/emergencekey](https://github.com/newcarp/emergencekey).  
 Flash this, open that page, and connect.
@@ -34,8 +34,8 @@ Use it from: [newcarp/emergencekey](https://github.com/newcarp/emergencekey).
 
 | Sketch                                                                                                               | Role                                                                                                                                            |
 | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `[EmergenceKey/sketch_EmergenceKey/](EmergenceKey/sketch_EmergenceKey/)`                                             | **For most use cases you want this.** Keyboard + mouse on a full OS. In some cases keyboard only in BIOS.                                       |
-| `[EmergenceKey_BootStrict/sketch_EmergenceKey_BootStrict/](EmergenceKey_BootStrict/sketch_EmergenceKey_BootStrict/)` | Extra-minimal keyboard-only version, it may work in some bios that the standard version does not. Same wire protocol; mouse frames are ignored. |
+| `[EmergenceKey/sketch_EmergenceKey/](EmergenceKey/sketch_EmergenceKey/)`                                             | **For most use cases you want this.** Keyboard + mouse + media keys on a full OS. In some cases keyboard only in BIOS.                          |
+| `[EmergenceKey_BootStrict/sketch_EmergenceKey_BootStrict/](EmergenceKey_BootStrict/sketch_EmergenceKey_BootStrict/)` | Extra-minimal keyboard-only version, it may work in some bios that the standard version does not. Same wire protocol; mouse and media frames are ignored. |
 
 
 Both require **USB Mode = USB-OTG (TinyUSB)** and **USB CDC On Boot = Disabled**.
@@ -49,12 +49,13 @@ Both require **USB Mode = USB-OTG (TinyUSB)** and **USB CDC On Boot = Disabled**
 Messages are **3 bytes**, first byte = type:
 
 
-| Type   | Bytes                                     | Meaning     |
-| ------ | ----------------------------------------- | ----------- |
-| `0x01` | `[modifiers, keycode]`                    | Type a key  |
-| `0x02` | `[dx, dy]` signed two's-complement        | Move mouse  |
-| `0x03` | `[button, 0x00]` (0x01=L, 0x02=R, 0x04=M) | Mouse click |
-| `0x04` | `[dx, dy]`                                | Scroll      |
+| Type   | Bytes                                     | Meaning                          |
+| ------ | ----------------------------------------- | -------------------------------- |
+| `0x01` | `[modifiers, keycode]`                    | Type a key                       |
+| `0x02` | `[dx, dy]` signed two's-complement        | Move mouse                       |
+| `0x03` | `[button, 0x00]` (0x01=L, 0x02=R, 0x04=M) | Mouse click                      |
+| `0x04` | `[dx, dy]`                                | Scroll                           |
+| `0x05` | `[action, 0x00]`                          | Media tap (main build, OS only)  |
 
 
 **Modifier bitmask:** LCtrl `0x01`, LShift `0x02`, LAlt `0x04`, LGUI `0x08`.
@@ -64,7 +65,25 @@ Uppercase = `0x02` + letter.
 Space `0x2C`, Enter `0x28`, Backspace `0x2A`, Esc `0x29`, Tab `0x2B`,
 F1–F12 `0x3A`–`0x45`, arrows `0x4F`–`0x52`.
 
-The main build also accepts the upstream v2 `[0xAA, 0x01]` TLV frames.
+**Media action byte** (one write = one tap; the dongle presses and releases):
+
+| Action | Key          | Example write        |
+| ------ | ------------ | -------------------- |
+| `0x01` | Play / Pause | `05 01 00`           |
+| `0x02` | Next track   | `05 02 00`           |
+| `0x03` | Previous     | `05 03 00`           |
+| `0x04` | Stop         | `05 04 00`           |
+| `0x05` | Volume up    | `05 05 00`           |
+| `0x06` | Volume down  | `05 06 00`           |
+| `0x07` | Mute         | `05 07 00`           |
+| `0x08` | Fast forward | `05 08 00`           |
+| `0x09` | Rewind       | `05 09 00`           |
+
+Media keys hit the **USB host** (the machine the dongle is plugged into), not the phone. Old firmware and boot-strict drop `0x05`. The live page can keep sending it; nothing breaks if the stick does not support it yet.
+
+Hold-to-repeat (volume) = send the same 3-byte frame again from the page. Do not invent a press/release pair; there is not one on v1.
+
+The main build also accepts the upstream v2 `[0xAA, 0x01]` TLV frames. Media there is TLV cmd `0x20`, len `1`, payload = the same action byte.
 
 ---
 
@@ -101,9 +120,11 @@ unless:
 3. USB is started **before** BLE.
 
 The main build already follows all three and has been confirmed in both a
-Linux OS (keyboard + mouse) and a Dell BIOS (keyboard). Boot-strict is
-insurance only; flash it if some other host will not enumerate the
-two-interface device.
+Linux OS (keyboard + mouse) and a Dell BIOS (keyboard). It now also
+exposes a Consumer Control interface for media keys. That third HID
+interface is for a full OS only — do not expect media keys in BIOS.
+Boot-strict is insurance only; flash it if some other host will not
+enumerate the composite device.
 
 ---
 
