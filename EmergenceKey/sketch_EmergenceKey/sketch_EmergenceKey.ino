@@ -209,6 +209,8 @@ static uint16_t mediaUsage(uint8_t action) {
     case 0x05: return CONSUMER_CONTROL_VOLUME_INCREMENT;
     case 0x06: return CONSUMER_CONTROL_VOLUME_DECREMENT;
     case 0x07: return CONSUMER_CONTROL_MUTE;
+    case 0x08: return CONSUMER_CONTROL_FAST_FORWARD;
+    case 0x09: return CONSUMER_CONTROL_REWIND;
     default:   return 0;
   }
 }

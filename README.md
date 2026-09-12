@@ -76,6 +76,8 @@ F1–F12 `0x3A`–`0x45`, arrows `0x4F`–`0x52`.
 | `0x05` | Volume up    | `05 05 00`           |
 | `0x06` | Volume down  | `05 06 00`           |
 | `0x07` | Mute         | `05 07 00`           |
+| `0x08` | Fast forward | `05 08 00`           |
+| `0x09` | Rewind       | `05 09 00`           |
 
 Media keys hit the **USB host** (the machine the dongle is plugged into), not the phone. Old firmware and boot-strict drop `0x05`. The live page can keep sending it; nothing breaks if the stick does not support it yet.
 
