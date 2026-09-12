@@ -52,8 +52,8 @@ uses `Serial`.
 lsusb -v -d 303a:822b
 ```
 
-Expect HID keyboard **and** mouse (two interfaces) and **no** CDC
-Comm/Data interface.
+Expect HID keyboard, mouse, **and** consumer-control (media) interfaces
+and **no** CDC Comm/Data interface.
 
 ---
 
@@ -78,7 +78,7 @@ mouse first.
 
 - `dmesg` shows a `303a:822b` HID boot keyboard after a USB-OTG flash.
 - `lsusb -v -d 303a:822b`:
-  - Main: keyboard **and** mouse HID interfaces, no CDC.
+  - Main: keyboard, mouse, **and** consumer-control HID interfaces, no CDC.
   - Boot-strict: one keyboard interface, `InterfaceClass 3 / SubClass 1 / Protocol 1`.
 - The EmergenceKey webpage (`2d2a0001-…` / `2d2a0002-…`) connects over Web
 Bluetooth and types at the console. First time: native Pair dialog (iPhone
